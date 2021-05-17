@@ -2,7 +2,7 @@
 /**
 * @package local_message
 * @author vimlesh
-* @license https://webii.in
+* @license https://technocodz.com
 **/
 
 require_once(__DIR__.'/../../config.php');
@@ -14,11 +14,9 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Manage Message');
 
 
-$sql = "SELECT lm.id,lm.messagetext,lm.messagetype 
-		FROM {local_message}  lm
-		LEFT OUTER JOIN {local_message_read} lmr ON lm.id=lmr.messageid
-		WHERE lmr.userid <> :userid 
-		OR lmr.userid IS NULL;";
+$sql = "SELECT  * from mdl_local_message WHERE id NOT IN (
+				SELECT DISTINCTROW  `messageid` from 
+					mdl_local_message_read where userid = :userid)";
 $params=[
 	'userid'=> $USER->id,
 ];
@@ -42,11 +40,13 @@ foreach ($messages as $key => $message) {
 	$readrecords->messageid = $message->id;
 	$readrecords->userid = 	$USER->id;
 	$readrecords->timeread = time();
-
 	$DB->insert_record('local_message_read',$readrecords);
 }
 
-
+$sql = "SELECT  * from mdl_local_message WHERE id IN (
+	SELECT  `messageid` from 
+		mdl_local_message_read where userid = :userid)";
+$messages=$DB->get_records_sql($sql,$params);
 $templatecontext=(object)[
 	'texttodisplay' => 'List of all current messages',
 	'messages' => array_values($messages) ,

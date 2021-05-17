@@ -2,7 +2,7 @@
 /**
 * @package local_message
 * @author vimlesh
-* @license https://webii.in
+* @license https://technocodz.com
 **/
 
 require_once(__DIR__.'/../../config.php');
